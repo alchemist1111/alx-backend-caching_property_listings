@@ -1,14 +1,14 @@
-from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
-from .models import Property
-from serializers import PropertySerializer
+from .utils import get_all_properties
+from .serializers import PropertySerializer
 
 # Cache the property list view for 15 minutes (900 seconds)
-@api_view(['GET'])
 @cache_page(60 * 15)
 def property_list(request):
-    # Retrieve all properties from the database
-    properties = Property.objects.all()
+    # Use the utility function to get properties (with low-level caching)
+    properties = get_all_properties()
+    # Serialize the properties
     serializer = PropertySerializer(properties, many=True)
+    # Return the data as JSON using JsonResponse
     return JsonResponse(serializer.data, safe=False)
